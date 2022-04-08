@@ -62,14 +62,15 @@ public class ChannelObserver {
             return;
         }
 
-
         var subscriberList = subscribers.get(channelId);
-        var runningIndex = 0;
-        for (IdentityStreamObserver<ChatRoomStreamReply> identityStreamObserver: subscriberList) {
+
+        var currentNode = subscriberList.iterator();
+        while (currentNode.hasNext()) {
+            var identityStreamObserver = currentNode.next();
             var streamObserver = (ServerCallStreamObserver<ChatRoomStreamReply>) identityStreamObserver.getStreamObserver();
 
             if (streamObserver.isCancelled()) {
-                subscriberList.remove(runningIndex);
+                currentNode.remove();
             } else {
                 var reply = ChatRoomStreamReply
                         .newBuilder()
@@ -78,8 +79,6 @@ public class ChannelObserver {
 
                 streamObserver.onNext(reply);
             }
-
-            runningIndex += 1;
         }
     }
 }
