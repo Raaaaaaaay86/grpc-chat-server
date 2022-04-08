@@ -3,6 +3,7 @@ package com.example.grpcchatserver.observer;
 import com.example.grpcchatserver.dto.IdentityStreamObserver;
 import com.example.push.ChatRoomStreamReply;
 import com.example.push.PushMessage;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.springframework.stereotype.Component;
 
@@ -61,14 +62,24 @@ public class ChannelObserver {
             return;
         }
 
-        var subscriberList = subscribers.get(channelId);
-        subscriberList.forEach(identityStreamObserver -> {
-            var reply = ChatRoomStreamReply
-                    .newBuilder()
-                    .setMessage(pushMessage)
-                    .build();
 
-            identityStreamObserver.getStreamObserver().onNext(reply);
-        });
+        var subscriberList = subscribers.get(channelId);
+        var runningIndex = 0;
+        for (IdentityStreamObserver<ChatRoomStreamReply> identityStreamObserver: subscriberList) {
+            var streamObserver = (ServerCallStreamObserver<ChatRoomStreamReply>) identityStreamObserver.getStreamObserver();
+
+            if (streamObserver.isCancelled()) {
+                subscriberList.remove(runningIndex);
+            } else {
+                var reply = ChatRoomStreamReply
+                        .newBuilder()
+                        .setMessage(pushMessage)
+                        .build();
+
+                streamObserver.onNext(reply);
+            }
+
+            runningIndex += 1;
+        }
     }
 }
