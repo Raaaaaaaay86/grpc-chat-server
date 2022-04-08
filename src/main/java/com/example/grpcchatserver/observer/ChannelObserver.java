@@ -7,10 +7,7 @@ import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class ChannelObserver {
@@ -31,17 +28,15 @@ public class ChannelObserver {
             return;
         }
 
-        var subscriberList = subscribers.get(channelId);
+        Iterator<IdentityStreamObserver<ChatRoomStreamReply>> currentNode = subscribers.get(channelId).iterator();
+        while (currentNode.hasNext()) {
+            var identityStreamObserver = currentNode.next();
 
-        var runningIndex = 0;
-        for (IdentityStreamObserver<ChatRoomStreamReply> identityStreamObserver : subscriberList) {
             if (identityStreamObserver.getUsername().equals(observerId)) {
                 identityStreamObserver.getStreamObserver().onCompleted();
-                subscriberList.remove(runningIndex);
+                currentNode.remove();
                 break;
             }
-
-            runningIndex += 1;
         }
     }
 
