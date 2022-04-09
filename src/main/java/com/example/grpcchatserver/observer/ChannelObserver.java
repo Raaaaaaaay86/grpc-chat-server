@@ -5,6 +5,8 @@ import com.example.push.ChatRoomStreamReply;
 import com.example.push.PushMessage;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -16,6 +18,9 @@ import java.util.Map;
 public class ChannelObserver {
     private static final Map<String, List<IdentityStreamObserver<ChatRoomStreamReply>>> subscribers = new HashMap<>();
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     public void subscribe(String channelId, String username, StreamObserver<ChatRoomStreamReply> streamObserver) {
         if (!subscribers.containsKey(channelId)) {
             var list = new LinkedList<IdentityStreamObserver<ChatRoomStreamReply>>();
@@ -23,7 +28,9 @@ public class ChannelObserver {
         }
 
         var subscriberList = subscribers.get(channelId);
-        subscriberList.add(new IdentityStreamObserver<>(streamObserver, username));
+        var identityStreamObserver =  new IdentityStreamObserver<>(streamObserver, username);
+        subscriberList.add(identityStreamObserver);
+        redisTemplate.opsForValue().set(channelId, identityStreamObserver);
     }
 
     public void unsubscribe(String channelId, String observerId) {
