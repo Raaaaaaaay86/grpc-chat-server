@@ -1,0 +1,27 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: envoy
+spec:
+  selector:
+    matchLabels:
+      app: envoy
+  template:
+    metadata:
+      labels:
+        app: envoy
+    spec:
+      volumes:
+        - name: envoy-config
+          configMap:
+            name: envoy-config
+      containers:
+        - name: envoy
+          image: "envoyproxy/envoy-alpine:v1.20-latest"
+          ports: # Just Informative
+            - name: "envoy"
+              containerPort: 8081
+          volumeMounts:
+            - name: envoy-config
+              mountPath: /etc/envoy/envoy.yaml
+              subPath: envoy.yaml

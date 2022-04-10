@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: envoy-svc
+spec:
+  selector:
+    app: envoy
+  ports:
+    - name: envoy-port
+      port: 8081
+      targetPort: 8081
