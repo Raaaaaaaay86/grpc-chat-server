@@ -1,0 +1,32 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: chat-server
+spec:
+  replicas: 3
+  serviceName: chat-server-headless
+  selector:
+    matchLabels:
+      app: chat-server
+  template:
+    metadata:
+      labels:
+        app: chat-server
+    spec:
+      containers:
+        - name: chat-server
+          image: "raaaaaaaay86/spring-grpc-chat-server:dev"
+          ports: # Just Informative
+            - name: "spring"
+              containerPort: 9090
+          env:
+            - name: CHAT_SERVER_MANAGER_HOST
+              value: "chat-server-manager-svc.default.svc.cluster.local"
+            - name: CHAT_SERVER_MANAGER_PORT
+              value: "9090"
+            - name: K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: K8S_HEADLESS_SERVICE
+              value: "chat-server-headless"
