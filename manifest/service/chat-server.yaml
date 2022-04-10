@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: chat-server-svc
+spec:
+#  clusterIP: None
+  selector:
+    app: chat-server
+  ports:
+    - name: chat-server
+      port: 9090
+      targetPort: 9090
