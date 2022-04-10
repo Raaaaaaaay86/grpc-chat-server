@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package com.example.chatManager;
+
+option java_multiple_files = true; // 預設行為會將所有產出的class包在一個class中，設置true後，各個class會被分為獨立檔案
+
+service ChatManagerService {
+  rpc getChatServerDNS(GetChatServerDNSRequest) returns (GetChatServerDNSResponse);
+  rpc chatSeverStream(stream ChatServerStreamRequest) returns (stream ChatServerStreamResponse);
+}
+
+message ChatServerStreamRequest {
+  string dns = 1;
+  string serverName = 2;
+}
+
+message ChatServerStreamResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+
+message GetChatServerDNSRequest {
+  string username = 2;
+}
+
+message GetChatServerDNSResponse {
+  bool success = 1;
+  string dns = 2;
+}
