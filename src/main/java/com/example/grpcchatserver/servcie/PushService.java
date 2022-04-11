@@ -13,8 +13,6 @@ import java.util.Map;
 @GrpcService
 public class PushService extends PushServiceGrpc.PushServiceImplBase {
 
-    static final Map<String, List<IdentityStreamObserver<ChatRoomStreamReply>>> streamObserverMap = new HashMap<>();
-
     @Autowired
     private ChannelObserver channelObserver;
 
